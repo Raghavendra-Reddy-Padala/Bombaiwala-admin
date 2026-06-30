@@ -22,7 +22,7 @@ export interface Category {
   brand: Brand;
   name: string;
   slug: string;
-  icon?: string;
+  image?: string;
   sortOrder: number;
   active: boolean;
 }
@@ -33,24 +33,18 @@ export interface CompetitorPrice {
   url?: string;
 }
 
-export interface Variant {
-  name: string;
-  price: number;
-  sku?: string;
-}
-
 export interface Product {
   id: string;
   brand: Brand;
   categoryId: string;
   name: string;
+  slug: string;
   description?: string;
   images: string[];
   sellingPrice: number;
   mrp: number;
   discountPct: number;
   competitorPrices: CompetitorPrice[];
-  variants: Variant[];
   inStock: boolean;
   stockQty?: number;
   tags: string[];
@@ -64,7 +58,6 @@ export interface Product {
 export interface ComboItem {
   productId: string;
   productName: string;
-  variant?: string;
   qty: number;
 }
 
