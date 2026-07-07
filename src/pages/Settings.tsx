@@ -1,17 +1,71 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "@/lib/auth-context";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { signOut } from "firebase/auth";
-import { auth } from "@/integrations/firebase/client";
+import { auth, db } from "@/integrations/firebase/client";
+import { doc, getDoc, setDoc } from "firebase/firestore";
 import { toast } from "sonner";
 import { seedChaatFromZomato } from "@/lib/seed-chaat";
 import { seedJuiceFromZomato } from "@/lib/seed-juice";
-import { Loader2, Sparkles } from "lucide-react";
+import { Loader2, Sparkles, Save } from "lucide-react";
 
 export default function SettingsPage() {
   const { user } = useAuth();
   const [seeding, setSeeding] = useState<"chaat" | "juice" | null>(null);
+
+  // Delivery settings state
+  const [freeDeliveryThreshold, setFreeDeliveryThreshold] = useState<string>("0");
+  const [deliveryFee, setDeliveryFee] = useState<string>("30");
+  const [maxRadius, setMaxRadius] = useState<string>("2");
+  const [shopLat, setShopLat] = useState<string>("17.454082489013672");
+  const [shopLng, setShopLng] = useState<string>("78.43592071533203");
+  const [loadingSettings, setLoadingSettings] = useState<boolean>(true);
+  const [savingSettings, setSavingSettings] = useState<boolean>(false);
+
+  useEffect(() => {
+    async function loadDeliverySettings() {
+      try {
+        const docRef = doc(db, "settings", "delivery");
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+          const data = docSnap.data();
+          setFreeDeliveryThreshold(String(data.freeDeliveryThreshold ?? 0));
+          setDeliveryFee(String(data.deliveryFee ?? 30));
+          setMaxRadius(String(data.maxRadius ?? 2));
+          setShopLat(String(data.shopLat ?? 17.454082489013672));
+          setShopLng(String(data.shopLng ?? 78.43592071533203));
+        }
+      } catch (e) {
+        console.error("Failed to load delivery settings:", e);
+      } finally {
+        setLoadingSettings(false);
+      }
+    }
+    loadDeliverySettings();
+  }, []);
+
+  async function saveDeliverySettings() {
+    setSavingSettings(true);
+    try {
+      const docRef = doc(db, "settings", "delivery");
+      await setDoc(docRef, {
+        freeDeliveryThreshold: Number(freeDeliveryThreshold) || 0,
+        deliveryFee: Number(deliveryFee) || 0,
+        maxRadius: Number(maxRadius) || 0,
+        shopLat: Number(shopLat) || 0,
+        shopLng: Number(shopLng) || 0,
+        updatedAt: new Date().toISOString()
+      });
+      toast.success("Delivery settings saved successfully!");
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Save failed");
+    } finally {
+      setSavingSettings(false);
+    }
+  }
 
   async function runSeed(brand: "chaat" | "juice") {
     const label = brand === "chaat" ? "Bombaiwala Chaat" : "Bombaiwala Juice";
@@ -53,6 +107,96 @@ export default function SettingsPage() {
           >
             Sign out
           </Button>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base font-display">Delivery Configuration</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {loadingSettings ? (
+            <div className="flex items-center justify-center py-6 text-sm text-muted-foreground">
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Loading delivery configurations...
+            </div>
+          ) : (
+            <div className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="freeDeliveryThreshold">Free Delivery Threshold Price (₹)</Label>
+                  <Input
+                    id="freeDeliveryThreshold"
+                    type="number"
+                    value={freeDeliveryThreshold}
+                    onChange={(e) => setFreeDeliveryThreshold(e.target.value)}
+                    placeholder="e.g. 500"
+                  />
+                  <p className="text-[10px] text-muted-foreground">Orders above this subtotal qualify for free delivery.</p>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="deliveryFee">Flat Delivery Charge (₹)</Label>
+                  <Input
+                    id="deliveryFee"
+                    type="number"
+                    value={deliveryFee}
+                    onChange={(e) => setDeliveryFee(e.target.value)}
+                    placeholder="e.g. 30"
+                  />
+                  <p className="text-[10px] text-muted-foreground">Standard delivery rate added to customer cart.</p>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="maxRadius">Maximum Delivery Radius (km)</Label>
+                <Input
+                  id="maxRadius"
+                  type="number"
+                  step="0.1"
+                  value={maxRadius}
+                  onChange={(e) => setMaxRadius(e.target.value)}
+                  placeholder="e.g. 5"
+                />
+                <p className="text-[10px] text-muted-foreground">Customers beyond this distance from the shop cannot check out.</p>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 border-t pt-4">
+                <div className="space-y-2">
+                  <Label htmlFor="shopLat">Shop Latitude</Label>
+                  <Input
+                    id="shopLat"
+                    type="number"
+                    step="0.000000000000001"
+                    value={shopLat}
+                    onChange={(e) => setShopLat(e.target.value)}
+                    placeholder="e.g. 17.454082"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="shopLng">Shop Longitude</Label>
+                  <Input
+                    id="shopLng"
+                    type="number"
+                    step="0.000000000000001"
+                    value={shopLng}
+                    onChange={(e) => setShopLng(e.target.value)}
+                    placeholder="e.g. 78.435920"
+                  />
+                </div>
+              </div>
+
+              <Button 
+                onClick={saveDeliverySettings} 
+                disabled={savingSettings}
+                className="w-full md:w-auto mt-2"
+              >
+                {savingSettings ? (
+                  <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Saving...</>
+                ) : (
+                  <><Save className="mr-2 h-4 w-4" /> Save Delivery Settings</>
+                )}
+              </Button>
+            </div>
+          )}
         </CardContent>
       </Card>
 
