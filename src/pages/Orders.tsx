@@ -182,7 +182,7 @@ function OrderDrawer({ order, onClose }: { order: NormalizedOrder | null; onClos
     }
     setSendingTracking(true);
     try {
-      const BOT_API = import.meta.env.VITE_BOT_API_URL || "http://localhost:8001";
+      const BOT_API = "https://backendserverbombaiwalaapi.bombaiwala.com";
       const res = await fetch(`${BOT_API}/api/tracking`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
