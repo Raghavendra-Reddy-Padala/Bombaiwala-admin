@@ -184,8 +184,8 @@ export default function SettingsPage() {
                 </div>
               </div>
 
-              <Button 
-                onClick={saveDeliverySettings} 
+              <Button
+                onClick={saveDeliverySettings}
                 disabled={savingSettings}
                 className="w-full md:w-auto mt-2"
               >
@@ -199,7 +199,7 @@ export default function SettingsPage() {
           )}
         </CardContent>
       </Card>
-
+      {/* 
       <Card>
         <CardHeader><CardTitle className="text-base font-display">Seed catalog</CardTitle></CardHeader>
         <CardContent className="space-y-3 text-sm">
@@ -217,7 +217,7 @@ export default function SettingsPage() {
             </Button>
           </div>
         </CardContent>
-      </Card>
+      </Card> */}
 
       <Card>
         <CardHeader><CardTitle className="text-base font-display">Brands</CardTitle></CardHeader>
@@ -230,16 +230,16 @@ export default function SettingsPage() {
         </CardContent>
       </Card>
 
-      <Card>
+      {/* <Card>
         <CardHeader><CardTitle className="text-base font-display">Image hosting</CardTitle></CardHeader>
         <CardContent className="space-y-2 text-sm">
           <div className="flex justify-between"><span className="text-muted-foreground">Cloudinary cloud</span><code className="text-xs bg-muted px-1.5 py-0.5 rounded">dkkmdjcva</code></div>
           <div className="flex justify-between"><span className="text-muted-foreground">Upload preset</span><code className="text-xs bg-muted px-1.5 py-0.5 rounded">bombaiwala</code></div>
           <p className="text-muted-foreground pt-1">Used by the product image uploader. Make sure the preset is set to <span className="text-foreground">Unsigned</span> in your Cloudinary settings.</p>
         </CardContent>
-      </Card>
+      </Card> */}
 
-      <Card>
+      {/* <Card>
         <CardHeader><CardTitle className="text-base font-display">Firestore</CardTitle></CardHeader>
         <CardContent className="space-y-3 text-sm">
           <p>Connected project: <code className="text-xs bg-muted px-1.5 py-0.5 rounded">bombaiwala-chat</code></p>
@@ -247,7 +247,7 @@ export default function SettingsPage() {
             Tighten your Firestore rules so only admin UIDs (a doc in <code className="text-xs bg-muted px-1 rounded">/roles/{`{uid}`}</code>) can write outside the public storefront.
           </p>
         </CardContent>
-      </Card>
+      </Card> */}
     </div>
   );
 }

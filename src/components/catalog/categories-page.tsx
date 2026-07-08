@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { collection, query, where, orderBy } from "firebase/firestore";
+import { collection, query, where } from "firebase/firestore";
 import { useEffect } from "react";
 import { onSnapshot } from "firebase/firestore";
 import { db } from "@/integrations/firebase/client";
@@ -27,7 +27,7 @@ export function CategoriesPage({ brand }: { brand: Brand }) {
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
-    const q = query(collection(db, "categories"), where("brand", "==", brand), orderBy("sortOrder", "asc"));
+    const q = query(collection(db, "categories"), where("brand", "==", brand));
     const unsub = onSnapshot(q, (snap) => {
       setRows(snap.docs.map((d) => ({ id: d.id, ...(d.data() as object) }) as Category));
       setLoading(false);
